@@ -1,6 +1,8 @@
-﻿#ifndef WIN32_LEAN_AND_MEAN 
+﻿#define _CRT_SECURE_NO_WARNINGS
+#ifndef WIN32_LEAN_AND_MEAN 
 #define WIN32_LEAN_AND_MEAN 
 #endif	// !WIN32_LEAN_AND_MEAN
+
 
 #include<iostream>
 #include<windows.h>
@@ -13,6 +15,24 @@ using namespace std;
 
 #define PORT "27015"
 #define BUFFER_LENGTH 1500
+
+LPSTR FormatLastError(DWORD dwError, CHAR szBuffer[])
+{
+	LPSTR lpBuffer = NULL;
+	FormatMessage
+	(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		dwError,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&lpBuffer,
+		0,
+		NULL
+	);
+	sprintf(szBuffer, "Error %i: %s", dwError, lpBuffer);
+	LocalFree(lpBuffer);
+	return szBuffer;
+}
 
 void main()
 {
@@ -59,9 +79,15 @@ void main()
 	iResult = connect(connect_socket, result->ai_addr, result->ai_addrlen);
 	if (iResult == SOCKET_ERROR)
 	{
-		closesocket(connect_socket);
-		freeaddrinfo(result);
-		cout << "Unable to conect to Server" << endl;
+		DWORD dwError = WSAGetLastError();
+		CHAR szError[256] = {};
+	
+		
+		/*closesocket(connect_socket);
+		freeaddrinfo(result);*/
+		cout << "Unable to conect to Server." << endl;
+		//cout << "Error " << dwError << ":\t" << lpBuffer << endl;
+		cout << FormatLastError(dwError, szError) << endl;
 		closesocket(connect_socket);
 		freeaddrinfo(result);
 		WSACleanup();

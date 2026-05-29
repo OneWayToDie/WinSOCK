@@ -1,5 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include"FormatLastError.h"
-
 LPSTR FormatLastError(DWORD dwError, CHAR szBuffer[])
 {
 	LPSTR lpBuffer = NULL;

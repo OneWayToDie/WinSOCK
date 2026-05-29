@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{EF58EFCC-7DEB-446D-BC3E-E35461A9D1E9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FormatLastError", "FormatLastError\FormatLastError.vcxproj", "{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{EF58EFCC-7DEB-446D-BC3E-E35461A9D1E9}.Release|x64.Build.0 = Release|x64
 		{EF58EFCC-7DEB-446D-BC3E-E35461A9D1E9}.Release|x86.ActiveCfg = Release|Win32
 		{EF58EFCC-7DEB-446D-BC3E-E35461A9D1E9}.Release|x86.Build.0 = Release|Win32
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Debug|x64.ActiveCfg = Debug|x64
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Debug|x64.Build.0 = Debug|x64
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Debug|x86.ActiveCfg = Debug|Win32
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Debug|x86.Build.0 = Debug|Win32
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Release|x64.ActiveCfg = Release|x64
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Release|x64.Build.0 = Release|x64
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Release|x86.ActiveCfg = Release|Win32
+		{02F544F5-D4A9-4945-9EF8-9DEDA56D3A93}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

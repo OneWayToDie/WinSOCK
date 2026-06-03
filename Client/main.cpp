@@ -119,11 +119,10 @@ void main()
 	{
 		cout << FormatLastError(WSAGetLastError(), szError) << endl;
 		cout << "Shutdown failed: " << WSAGetLastError() << endl;
-		closesocket(connect_socket);
-		freeaddrinfo(result);
-		WSACleanup();
-		return;
 	}
 
-
+	closesocket(connect_socket);
+	freeaddrinfo(result);
+	WSACleanup();
+	//return;
 }

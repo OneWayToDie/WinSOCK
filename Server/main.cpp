@@ -21,6 +21,12 @@ using namespace std;
 #define MAX_CONNECTIONS 5
 
 
+SOCKET sockets[MAX_CONNECTIONS] = {};
+DWORD dwThreadIDs[MAX_CONNECTIONS] = {};
+HANDLE hThreads[MAX_CONNECTIONS] = {};
+
+VOID ClientHandle(SOCKET client_socket);
+
 void main()
 {
 	setlocale(LC_ALL, "");
@@ -115,6 +121,22 @@ void main()
 	cout << clientIP << endl;*/
 	cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
 
+	ClientHandle(client_socket);
+
+	/*iResult = shutdown(listen_socket, SD_RECEIVE);
+	dwError = WSAGetLastError();
+	if (iResult == SOCKET_ERROR)cout << "Server shutdown failed with error: " << FormatLastError(dwError, szError) << endl;*/
+
+	closesocket(client_socket);
+	closesocket(listen_socket);
+	WSACleanup();
+}
+
+VOID ClientHandle(SOCKET client_socket)
+{
+	INT iResult = 0;
+	DWORD dwError;
+	CHAR szError[256] = {};
 	//7) Получение и отправка данных:
 	CHAR sendbuffer[BUFFER_LENGTH] = {};
 	INT iSendResult = 0;
@@ -148,13 +170,4 @@ void main()
 	iResult = shutdown(client_socket, SD_BOTH);
 	dwError = WSAGetLastError();
 	if (iResult == SOCKET_ERROR)cout << "Client shutdown failed with error: " << FormatLastError(dwError, szError) << endl;
-	
-
-	iResult = shutdown(listen_socket, SD_BOTH);
-	dwError = WSAGetLastError();
-	if (iResult == SOCKET_ERROR)cout << "Server shutdown failed with error: " << FormatLastError(dwError, szError) << endl;
-
-	closesocket(client_socket);
-	closesocket(listen_socket);
-	WSACleanup();
 }

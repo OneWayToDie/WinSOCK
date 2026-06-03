@@ -1,11 +1,10 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-#endif
+#endif // !define WIN32_LEAN_AND_MEAN
 
 #include<iostream>
-#include<windows.h>
+#include<Windows.h>
 #include<winsock2.h>
 #include<WS2tcpip.h>
 #include<iphlpapi.h>
@@ -13,27 +12,32 @@
 #include<FormatLastError.h>
 using namespace std;
 
-#pragma comment(lib, "WS2_32")
+#pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "FormatLastError.lib")
 
-#define PORT "27015"
-#define BUFFER_LENGTH 1500
-#define MAX_CONNECTIONS 5
-
+#define PORT	"27015"
+#define BUFFER_LENGTH	1500
+#define MAX_CONNECTIONS	 5
 
 SOCKET sockets[MAX_CONNECTIONS] = {};
 DWORD dwThreadIDs[MAX_CONNECTIONS] = {};
 HANDLE hThreads[MAX_CONNECTIONS] = {};
+
+//struct
+//{
+//	SOCKET client_socket;
+//	sockaddr_in a;
+//};
 
 VOID ClientHandle(SOCKET client_socket);
 
 void main()
 {
 	setlocale(LC_ALL, "");
-	cout << "Server: " << endl;
+	cout << "SERVER" << endl;
 	DWORD dwError = 0;
 	CHAR szError[256] = {};
-	//1) Init WinSock
+	//1) Init WinSOCK:
 	WSADATA wsaData;
 	int iResult;
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -64,8 +68,8 @@ void main()
 		return;
 	}
 
-	//3) Создаём сокет для сервера, который он будет постоянно слушать "LISTENING":
-	SOCKET listen_socket = 
+	//3) Создаем сокет для сервера, который он будет постоянно слушать "LISTENING":
+	SOCKET listen_socket =
 		socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	dwError = WSAGetLastError();
 	if (listen_socket == INVALID_SOCKET)
@@ -104,44 +108,69 @@ void main()
 	}
 
 	//6) Обработка соединений от клиентов:
-	sockaddr_in client_address;
-	int client_addrlen = sizeof(client_address);
-	client_address.sin_family = AF_INET;
-	SOCKET client_socket = accept(listen_socket, (SOCKADDR*)&client_address, &client_addrlen);
-	dwError = WSAGetLastError();
-	if (client_socket == INVALID_SOCKET)
+	INT i = 0;	//счетчик клиентов
+	do
 	{
-		cout << FormatLastError(dwError, szError) << endl;
-		cout << "Accept failed with error: " << WSAGetLastError() << endl;
-	}
+		sockaddr_in client_address;
+		int client_addrlen = sizeof(client_address);
+		client_address.sin_family = AF_INET;
+		SOCKET client_socket = accept(listen_socket, (SOCKADDR*)&client_address, &client_addrlen);
+		dwError = WSAGetLastError();
+		if (client_socket == INVALID_SOCKET)
+		{
+			cout << FormatLastError(dwError, szError) << endl;
+			cout << "Accept failed with error: " << WSAGetLastError() << endl;
+		}
+		//6.1) Получаем информацию о сокете клиента:
+		//sockaddr_in client_address_in = (sockaddr_in)client_address;
+		cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;;
 
-	//6.1) Получаем информацию о сокете клиента:
-	//sockaddr_in client_address_in = (sockaddr_in)client_address;
-	/*CHAR* clientIP = inet_ntoa(client_address.sa_data+2);
-	cout << clientIP << endl;*/
-	cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
+		//ClientHandle(client_socket);
+		if (i < MAX_CONNECTIONS)
+		{
+			sockets[i] = client_socket;
+			cout << client_socket << "\t" << sockets[i] << endl;
+			hThreads[i] = CreateThread
+			(
+				NULL,	//Security attributes
+				0,		//Stack size
+				(LPTHREAD_START_ROUTINE)ClientHandle,	//Указатель на функцию, которая будет выполняться в потоке
+				(LPVOID)sockets[i],
+				0,
+				&dwThreadIDs[i]
+			);
+			i++;
+		}
 
-	ClientHandle(client_socket);
+	} while (true);
 
-	/*iResult = shutdown(listen_socket, SD_RECEIVE);
-	dwError = WSAGetLastError();
-	if (iResult == SOCKET_ERROR)cout << "Server shutdown failed with error: " << FormatLastError(dwError, szError) << endl;*/
+	//iResult = shutdown(listen_socket, SD_BOTH);
+	//dwError = WSAGetLastError();
+	//if (iResult == SOCKET_ERROR)cout << "Server shutdown failed with  " << FormatLastError(dwError, szError) << endl;
 
-	closesocket(client_socket);
+
 	closesocket(listen_socket);
 	WSACleanup();
 }
 
 VOID ClientHandle(SOCKET client_socket)
 {
+	sockaddr_in client_address;
+	client_address.sin_family = AF_INET;
+	INT namelen = sizeof(client_address);
+	getpeername(client_socket, (sockaddr*)&client_address, &namelen);
+	CHAR szName[32] = {};
+	//sprintf(szName, "%s:%d\t", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+
+	cout << "Client connected:\t" << szName << "\tSOCKET:\t" << client_socket << endl;
 	INT iResult = 0;
-	DWORD dwError;
+	DWORD dwError = 0;
 	CHAR szError[256] = {};
 	//7) Получение и отправка данных:
-	CHAR sendbuffer[BUFFER_LENGTH] = {};
 	INT iSendResult = 0;
 	do
 	{
+		CHAR sendbuffer[BUFFER_LENGTH] = {};
 		CHAR recvbuffer[BUFFER_LENGTH] = {};
 		iResult = recv(client_socket, recvbuffer, BUFFER_LENGTH, 0);
 		dwError = WSAGetLastError();
@@ -158,7 +187,7 @@ VOID ClientHandle(SOCKET client_socket)
 			}
 			else cout << "Bytes sent: " << iSendResult << endl;
 		}
-		else if (iResult == 0) cout << "Connection clossing..." << endl;
+		else if (iResult == 0) cout << "Connection closing..." << endl;
 		else
 		{
 			cout << FormatLastError(dwError, szError) << endl;
@@ -169,5 +198,6 @@ VOID ClientHandle(SOCKET client_socket)
 
 	iResult = shutdown(client_socket, SD_BOTH);
 	dwError = WSAGetLastError();
-	if (iResult == SOCKET_ERROR)cout << "Client shutdown failed with error: " << FormatLastError(dwError, szError) << endl;
+	if (iResult == SOCKET_ERROR)cout << "Client shutdown failed with  " << FormatLastError(dwError, szError) << endl;
+	closesocket(client_socket);
 }

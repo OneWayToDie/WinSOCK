@@ -183,7 +183,7 @@ VOID ClientHandle(SOCKET client_socket)
 	CHAR sz_client_address[32] = {};
 	CHAR sz_client_connected[32] = {};
 	sprintf(sz_client_address, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
-	sprintf(sz_client_address, "%s CONNECTED", sz_client_address);
+	sprintf(sz_client_address, "%s CONNECTED - ", sz_client_address);
 	//Broadcast(sz_client_connected, GetCurrentThreadId());
 
 	cout << "Client connected:\t" << sz_client_address << "\tSOCKET:\t" << client_socket << endl;
